@@ -1,0 +1,12 @@
+{
+    "name": "anton/mediasoft",
+    "require": {
+      "ext-pdo": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Anton\\": "framework/",
+            "App\\": "application/"
+        }
+    }
+}
