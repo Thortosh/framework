@@ -1,17 +1,8 @@
 <?php
-// application/models/UserModel.class.php
+namespace App\Models;
 
-class UserModel extends Model{
+use Anton\Database\Model;
 
-
-    public function getUsers(){
-
-        $sql = "select * from $this->table";
-
-        $users = $this->db->getAll($sql);
-
-        return $users;
-
-    }
-
+class UserModel extends Model {
+    protected static $tablename = 'userdata';
 }

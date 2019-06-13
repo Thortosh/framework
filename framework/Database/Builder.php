@@ -14,13 +14,20 @@ class Builder
     protected $orderby = '';
     protected $limit = null;
     protected $offset = null;
+    /** @var Model $model */
+    protected $model = null;
 
     /**
      * Builder constructor.
+     * @param Model $model
      */
-    public function __construct()
+    public function __construct($model = null)        // переменная model должна быть экземпляром (наследника) класса Model
     {
         $this->connect = new Connect();
+        if (!is_null($model)) {
+            $this->model = $model;
+            $this->from = ($this->model)::getTable();
+        }
     }
 
     /**
@@ -217,8 +224,15 @@ class Builder
     public function get()
     {
         $sql = $this->toSql();
-        return $this->connect->execute($sql);
-        // компилит запрос и возвращает пользователю данные из бд
+        $data = $this->connect->execute($sql);
+
+        if (is_null($this->model)) {
+            return $data;
+        }
+
+        return array_map(function ($item) {
+            return new $this->model($item);
+        }, $data);
     }
 
     /**
