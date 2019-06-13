@@ -3,8 +3,7 @@
 
 namespace Anton\Database;
 
-
-use mysql_xdevapi\Exception;
+use Anton\Exceptions\QueryBuilderException;
 
 class Builder
 {
@@ -150,7 +149,7 @@ class Builder
         if (!empty($this->from)) {
             $fromClause .= "FROM {$this->from}";
         } else {
-            throw new \Exception('No target table is presented');
+            throw new QueryBuilderException('No target table is presented');
         }
         return $fromClause;
     }
@@ -217,15 +216,8 @@ class Builder
      */
     public function get()
     {
-        $result = [];
         $sql = $this->toSql();
-        foreach ($this->connect->pdo->query($sql) as $item) {
-            $result[] = (object)array_filter($item, function ($field) {
-                return is_string($field);
-            }, ARRAY_FILTER_USE_KEY);
-        };
-
-        return $result;
+        return $this->connect->execute($sql);
         // компилит запрос и возвращает пользователю данные из бд
     }
 
