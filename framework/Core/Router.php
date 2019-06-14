@@ -13,7 +13,7 @@ class Router
     function __construct()
     {
         /** @var  $arr = 'Application\config\routes.php' */
-        $this->routes = require CONFIG_PATH . 'routes.php';              //подключаем массив с маршрутами
+        $this->routes = config('routes');              //подключаем массив с маршрутами
     }
 
     /**

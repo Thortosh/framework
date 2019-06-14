@@ -5,7 +5,7 @@ namespace Anton\Database;
 
 use Anton\Exceptions\QueryBuilderException;
 
-class Builder
+abstract class Builder
 {
     protected $connect = null;
     protected $select = ['*'];
@@ -21,7 +21,8 @@ class Builder
      * Builder constructor.
      * @param Model $model
      */
-    public function __construct($model = null)        // переменная model должна быть экземпляром (наследника) класса Model
+    public function __construct($model = null
+    )        // переменная model должна быть экземпляром (наследника) класса Model
     {
         $this->connect = new Connect();
         if (!is_null($model)) {
@@ -70,7 +71,7 @@ class Builder
     {
         //реализовать where так что бы можно было вызвать несколько раз для нескольких условий
         if (isset($key) && isset($operator) /*&& isset($val)*/) {                   //->where('name', '<>', 'Ivan ')->where('id', '>=', 1)
-            $this->where[] = [$key, $operator, $this->convertValue($val)];
+            $this->where[] = [$this->quote($key), $operator, $this->convertValue($val)];
         }
         return $this;
     }
@@ -154,7 +155,7 @@ class Builder
     {
         $fromClause = ' ';
         if (!empty($this->from)) {
-            $fromClause .= "FROM {$this->from}";
+            $fromClause .= "FROM " . $this->quote($this->from);
         } else {
             throw new QueryBuilderException('No target table is presented');
         }
@@ -269,4 +270,9 @@ class Builder
         return $value;
     }
 
+    /**
+     * @param string $value
+     * @return string
+     */
+    abstract protected function quote($value);
 }

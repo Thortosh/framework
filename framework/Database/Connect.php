@@ -12,7 +12,7 @@ class Connect
 
     public function __construct()
     {
-        $config = require CONFIG_PATH . 'db.php';
+        $config = config('db.connect');
 
         if (!in_array($config['driver'], \PDO::getAvailableDrivers())) {
             throw new \PDOException ("Cannot work without a proper database setting up");
@@ -47,7 +47,7 @@ class Connect
     protected function getSqlError()
     {
         $error = $this->pdo->errorInfo();
-        return "SQLSTATE ". $error[0] . ": " . $error[2];
+        return "SQLSTATE " . $error[0] . ": " . $error[2];
     }
 
 }

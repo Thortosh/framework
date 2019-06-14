@@ -3,13 +3,15 @@
 namespace App\Controllers;
 
 use Anton\Core\Controller;
-use Anton\Database\Builder;
+use Anton\Exceptions\BuilderGetterException;
 use App\Models\UserModel;
-
-//application\Framework\Core\Controller;
 
 class MainController extends Controller
 {
+    /**
+     * @return string
+     * @throws BuilderGetterException
+     */
     public function indexAction()
     {
         $users = UserModel::query()->get();

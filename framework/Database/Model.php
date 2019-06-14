@@ -12,6 +12,7 @@ namespace Anton\Database;
 // TODO: почистить конструктор
 
 use \Anton\Database\Builder;
+use Anton\Exceptions\BuilderGetterException;
 
 /**
  * Class Model
@@ -35,11 +36,14 @@ class Model
 
     /**
      * @return Builder
+     * @throws BuilderGetterException
      */
     public static function query()
     {
-        //что обратится в статическом методе к свойству экземпляра класса используется (new static)
-        return new Builder(static::class);
+        /** @var Builder $builder */
+        $builder = BuilderGetter::getBuilder();
+
+        return new $builder(static::class);
     }
 
     public static function getTable()
