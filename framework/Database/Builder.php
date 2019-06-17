@@ -4,6 +4,7 @@
 namespace Anton\Database;
 
 use Anton\Exceptions\QueryBuilderException;
+use Anton\Database\BuilderOperator as Op;
 
 abstract class Builder
 {
@@ -66,12 +67,13 @@ abstract class Builder
      * Записываем в свойство класса where(которое по умолчанию является пустым массивом) переданные аргументы
      * $key, $operator и с помощью метода convertValue устанавливаем значение аргумента $val
      * Возвращаем $this
+     * @throws \Anton\Exceptions\UnaccaptableOperatorException
      */
     public function where($key = null, $operator = null, $val = null)
     {
         //реализовать where так что бы можно было вызвать несколько раз для нескольких условий
         if (isset($key) && isset($operator) /*&& isset($val)*/) {                   //->where('name', '<>', 'Ivan ')->where('id', '>=', 1)
-            $this->where[] = [$this->quote($key), $operator, $this->convertValue($val)];
+            $this->where[] = [$this->quote($key), Op::getOperator($operator, $val), $this->convertValue($val)];
         }
         return $this;
     }

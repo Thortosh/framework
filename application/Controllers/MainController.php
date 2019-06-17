@@ -11,6 +11,7 @@ class MainController extends Controller
     /**
      * @return string
      * @throws BuilderGetterException
+     * @throws \Exception
      */
     public function indexAction()
     {
