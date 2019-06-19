@@ -6,8 +6,15 @@ namespace Anton\Database;
 use Anton\Exceptions\QueryBuilderException;
 use Anton\Database\BuilderOperator as Op;
 
+/**
+ * Class Builder
+ * @package Anton\Database
+ */
 abstract class Builder
 {
+    /**
+     * @var Connect|null
+     */
     protected $connect = null;
     protected $select = ['*'];
     protected $from = '';
@@ -21,9 +28,11 @@ abstract class Builder
     /**
      * Builder constructor.
      * @param Model $model
+     * Создаем объект класса Connect, если model не null
+     * Записывыаем в свойство класса model, значение переданной переменной $model
+     * переменная model должна быть экземпляром (наследника) класса Model
      */
-    public function __construct($model = null
-    )        // переменная model должна быть экземпляром (наследника) класса Model
+    public function __construct($model = null)
     {
         $this->connect = new Connect();
         if (!is_null($model)) {

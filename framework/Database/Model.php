@@ -18,6 +18,7 @@ use Anton\Exceptions\BuilderGetterException;
  * Class Model
  * @property $table
  * @property $attributes
+ *
  */
 class Model
 {
@@ -52,9 +53,14 @@ class Model
     }
 
     /**
+     * @param $field
+     * @param null $default
      * @return void $attributes[$field]
+     * вернуть данные из модели из массива attributes
+     * 2 параметра 1. field 2. default
      */
-    public function get()
+    public function get($field, $default = null)
     {
+        return $this->attributes[$field] ??  $default;
     }
 }

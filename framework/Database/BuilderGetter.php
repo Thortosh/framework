@@ -6,6 +6,11 @@ namespace Anton\Database;
 
 use Anton\Exceptions\BuilderGetterException;
 
+/**
+ * Class BuilderGetter
+ * @package Anton\Database
+ *
+ */
 class BuilderGetter
 {
     /**

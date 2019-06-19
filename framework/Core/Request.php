@@ -36,11 +36,14 @@ class Request
 
     /**
      * Request constructor.
-     * construct заполняет объекты
-     * $uri
-     * $path
-     * $params
-     * $method
+     * construct заполняет свойства объекта
+     * $uri - URI, который был предоставлен для доступа к этой странице
+     * $path - Содержит любой предоставленный пользователем путь, содержащийся после имени скрипта, но до строки запроса, если она есть.
+     * Например, если текущий скрипт запрошен по URL http://www.example.com/php/path_info.php/some/stuff?foo=bar, то переменная $_SERVER['PATH_INFO'] будет содержать /some/stuff. Либо '/'
+     * $params содержит массив $_GET и $_POST (array_merge — Сливает один или большее количество массивов)
+     * $method - содержит 'REQUEST_METHOD' .Какой метод был использован для запроса страницы; к примеру 'GET', 'HEAD', 'POST', 'PUT'. Ссылка на констану self::METHOD_GET
+     * -parse_str — Разбирает строку в переменные
+     * 'QUERY_STRING' - Строка запроса, если есть, через которую была открыта страница.
      */
     protected final function __construct()
     {
@@ -48,17 +51,17 @@ class Request
         $this->method = $_SERVER['REQUEST_METHOD'] ?? self::METHOD_GET;
         $this->path = $_SERVER['PATH_INFO'] ?? '/';
         $this->params = array_merge($_GET, $_POST);
-        parse_str($_SERVER['QUERY_STRING'], $this->query);
+        /* $this->query = */parse_str($_SERVER['QUERY_STRING'], $this->query);
     }
 
     /**
-     * getInstance - если нет static $Instance,  записывает в Instance новый экзепляр Request; возращает Instance
+     * getInstance - если  static $instance = null,  записывает в $instance новый экзепляр Request (аналог new Request. обращаемся к конструктору на прямую. паттер SingleTone); возращает Instance
      * @return Request
      */
-    public static function getInstance()                // паттерн single ton
+    public static function getInstance()
     {
         if (empty(self::$instance)) {
-            self::$instance = new static();             // аналог new Request. обращаемся к конструктору на прямую. паттер SingleTone
+            self::$instance = new static();
         }
         return self::$instance;
     }
@@ -85,9 +88,13 @@ class Request
     }
 
     /**
-     * проверяет существование цепочки ключей params
+     * Статический метод has - принимает на вход один аргумент($keystring) проверяет существование цепочки ключей params
      * @param string $keystring
      * @return bool
+     * Записываем в переменную $keys разбитую строку ($keystring) с помощью разделителя ('.')
+     * Записываем в переменную $buffer = self::all(); (Метод all - возвращает все поля(params) которые есть в запросе)
+     * Возвращаем true
+     *
      */
     public static function has($keystring)
     {
@@ -104,7 +111,8 @@ class Request
     }
 
     /**
-     * Нужно вернуть все поля(params) которые есть в запросу
+     * Метод all - возвращает все поля(params) которые есть в запросе
+     * SingleTone getInstance
      * @return array
      */
     public static function all()
@@ -113,7 +121,7 @@ class Request
     }
 
     /**
-     * method - должен получить Instance. Вернуть его свойство method
+     * Метод method - должен получить Instance. Вернуть его свойство method
      * @return mixed|string
      */
     public static function method()
@@ -122,6 +130,8 @@ class Request
     }
 
     /**
+     * Метод query принимает на вход два аргумента $key (по дефолту null) и $default (по дефолту null)
+     * Записываем в переменную $query
      * @param null $key
      * @param null $default
      * @return array
@@ -147,7 +157,7 @@ class Request
     }
 
     /**
-     * вернуть текущий uri
+     * Метод uri возвращает текущий uri
      * @return string
      */
     public static function uri()
@@ -155,6 +165,10 @@ class Request
         return self::getInstance()->uri;
     }
 
+    /**
+     * Метод path - возвращает путь
+     * @return mixed|string
+     */
     public static function path()
     {
 
@@ -162,6 +176,7 @@ class Request
     }
 
     /**
+     *
      * @return array
      */
     public static function rules()
@@ -170,6 +185,8 @@ class Request
     }
 
     /**
+     * Метод validate - проверяет все ли поля заполнены
+     * ипользуется в AuthHelper.php
      * @param array $required
      * @return array
      */

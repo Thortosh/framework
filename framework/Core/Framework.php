@@ -2,8 +2,16 @@
 
 namespace Anton\Core;
 
+/**
+ * Class Framework
+ * @package Anton\Core
+ *  объявляем namespace Anton(framework)\Core для удобного взаимодействия с другими классами директории Core
+ */
 class Framework
 {
+    /**
+     * Статический метод run запускает вызывает три метода класса Framework
+     */
     public static function run()
     {
         self::init();
@@ -11,6 +19,9 @@ class Framework
         self::dispatch();
     }
 
+    /**
+     *  В статическом методе init определяем константы для удобства и старт сессии
+     */
     private static function init()
     {
         // Определяем константы
@@ -31,11 +42,17 @@ class Framework
         session_start();
     }
 
+    /**
+     * Статический метод globals подключает Globals.php в котором содержаться функции
+     */
     private static function globals()
     {
         include 'Globals.php';
     }
 
+    /**
+     *  Статический метод dispatch(отправка) создает объект класса Router и вызывает метод run
+     */
     private static function dispatch()
     {
         $router = new Router();
