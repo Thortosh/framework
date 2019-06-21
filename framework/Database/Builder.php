@@ -5,6 +5,7 @@ namespace Anton\Database;
 
 use Anton\Exceptions\QueryBuilderException;
 use Anton\Database\BuilderOperator as Op;
+use Anton\Helpers\AuthHelper;
 
 /**
  * Class Builder
@@ -16,7 +17,11 @@ abstract class Builder
      * @var Connect|null
      */
     protected $connect = null;
+
     protected $select = ['*'];
+    protected $insert = null;
+    protected $values = [];
+
     protected $from = '';
     protected $where = [];
     protected $orderby = '';
@@ -37,7 +42,7 @@ abstract class Builder
         $this->connect = new Connect();
         if (!is_null($model)) {
             $this->model = $model;
-            $this->from = ($this->model)::getTable();
+            $this->from = $model::getTable();
         }
     }
 
@@ -52,6 +57,33 @@ abstract class Builder
         $this->select = ((is_array($columns)) ? $columns : func_get_args());            // func_get_args() - Возвращает массив, содержащий аргументы функции
         return $this;
     }
+
+    /**
+     * @param null $into
+     * @return $this
+     */
+    public function insert($into = null)    //INSERT INTO
+    {
+        $this->insert = $into ?? $this->from;
+        return $this;
+    }
+
+    /**
+     * @param array $val
+     * @return $this
+     * метод
+     */
+    public function values($val = [])
+    {
+        $quotedValues = [];
+        foreach ($val as $key => $value) {
+            $quotedValues[] = [$this->quote($key), $this->convertValue($value)];
+        }
+
+        $this->values = $quotedValues;
+        return $this;
+    }
+
 
     /**
      * @param $tablename
@@ -119,6 +151,10 @@ abstract class Builder
         return $this;
     }
 
+    /**
+     * @param null $offset
+     * @return $this
+     */
     public function offset($offset = null)
     {
         $this->offset = $offset;
@@ -136,12 +172,15 @@ abstract class Builder
      */
     public function toSql()
     {
+//        var_dump($this->generateInsertClause());
+
         return $this->generateSelectClause()
             . $this->generateFromClause()
             . $this->generateWhereClause()
             . $this->generateOrderByClause()
             . $this->generateLimitOffsetClause();
     }
+
 
     /**
      * @return string
@@ -154,6 +193,25 @@ abstract class Builder
         return 'SELECT ' . implode(', ', $this->select);
 
     }
+
+    protected function generateInsertClause()
+    {
+
+        $insertClause = ' ';
+        if (!empty($this->insert)) {
+            $insertClause .= 'INSERT INTO ' . $this->insert . ' (' . array_keys($this->values) . ') VALUES (' . array_values($this->values) . ') ';
+        }
+        return $insertClause;
+
+        // гененирует запрос Insert
+        // возравщает нового пользователя
+    }
+
+    public function evalInsert()
+    {
+
+    }
+
 
     /**
      * @return string
@@ -208,7 +266,6 @@ abstract class Builder
         return $orderByClause;
     }
 
-
     /**
      * @return string
      * Обработчик для свойств limit и offset
@@ -245,6 +302,11 @@ abstract class Builder
         return array_map(function ($item) {
             return new $this->model($item);
         }, $data);
+    }
+
+    public function first()
+    {
+        return $this->get()[0] ?? null;
     }
 
     /**

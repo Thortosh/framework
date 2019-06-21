@@ -17,6 +17,8 @@ class MainController extends Controller
     {
         $users = UserModel::query()->get();
 
+
+
         return $this->render('main.index', ['method' => __METHOD__, 'users' => $users]);
     }
 }

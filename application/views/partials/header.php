@@ -13,9 +13,12 @@ use Anton\Helpers\AuthHelper;
     <li>
         <a href="/account/logoff"> Выход </a>
     </li>
-    <?php else: ?>
-    <a href="/account/login"> Вход </a>
-    <?php endif; ?>
+<?php else: ?>
+    <a href="/account/register"> Регистрация </a>
+    <li>
+        <a href="/account/login"> Вход </a>
+    </li>
+<?php endif; ?>
 </li>
 <li>
     <a href="/news/show"> News </a>

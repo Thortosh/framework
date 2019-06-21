@@ -16,6 +16,8 @@ class BuilderGetter
     /**
      * @return string
      * @throws BuilderGetterException
+     * метод getBuilder проверяет какой драйвер используется для подключения к БД (MySQL, sqlite, pgsql)
+     *
      */
     public static function getBuilder()
     {

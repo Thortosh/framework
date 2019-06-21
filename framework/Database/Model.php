@@ -13,6 +13,7 @@ namespace Anton\Database;
 
 use \Anton\Database\Builder;
 use Anton\Exceptions\BuilderGetterException;
+use Anton\Helpers\AuthHelper;
 
 /**
  * Class Model
@@ -20,10 +21,15 @@ use Anton\Exceptions\BuilderGetterException;
  * @property $attributes
  *
  */
-class Model
+class Model implements \Serializable
 {
     protected static $tablename;
     protected $attributes = [];
+    /**
+     * @var array $hidden
+     * Список полей которые нельзя показывать при сериализации
+     */
+    protected $hidden = [];
 
     /**
      * Model constructor
@@ -47,8 +53,12 @@ class Model
         return new $builder(static::class);
     }
 
+    /**
+     * @return mixed
+     */
     public static function getTable()
     {
+
         return static::$tablename;
     }
 
@@ -61,6 +71,58 @@ class Model
      */
     public function get($field, $default = null)
     {
-        return $this->attributes[$field] ??  $default;
+        return $this->attributes[$field] ?? $default;
+    }
+
+    /**
+     * @param array $values
+     * @throws BuilderGetterException
+     */
+    public function create($values = [])
+    {
+        $builder = self::query();
+        $builder->insert();
+        $builder->values($values);
+        return $builder->evalInsert();
+        // закинуть содержимое generateInsertClause
+
+    }
+
+
+    /**
+     * @return mixed
+     */
+    public function all()
+    {
+        return $this->attributes;
+    }
+
+    /**
+     * String representation of object
+     * @link https://php.net/manual/en/serializable.serialize.php
+     * @return string the string representation of the object or null
+     * @since 5.1.0
+     */
+    public function serialize()
+    {
+        $user = $this->all();
+        foreach ($this->hidden as $field) {
+            unset($user[$field]);
+        }
+        return serialize($user);
+    }
+
+    /**
+     * Constructs the object
+     * @link https://php.net/manual/en/serializable.unserialize.php
+     * @param string $serialized <p>
+     * The string representation of the object.
+     * </p>
+     * @return void
+     * @since 5.1.0
+     */
+    public function unserialize($serialized)
+    {
+        $this->attributes = unserialize($serialized);
     }
 }
