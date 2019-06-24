@@ -37,11 +37,17 @@ if (!function_exists('config')) {
         return $file;
     }
 }
+
 if (!function_exists('dd')) {
     function dd(){
-        echo '<br>';
-        var_dump(...func_get_args());
-        echo '<br>';
+        $values = func_get_args();
+        echo '<div style="font-family: monospace; font-size: larger">';
+        foreach ($values as $value) {
+            echo '<br>';
+            var_dump($value);
+            echo '<br>';
+        }
+        echo '</div>';
         die();
     }
 }

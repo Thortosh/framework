@@ -101,21 +101,50 @@ abstract class Builder
      * @param null $key
      * @param null $operator
      * @param null $val
+     * @param string $boolean
      * @return $this
-     * Метод where принимает на вход три аргумента (имя(столбца), оператор, значение)
+     * Метод where принимает на вход три аргумента (имя столбца, оператор, значение)
      * Определяем, были ли установлены переменные значением, отличным от NULL.
      * Записываем в свойство класса where(которое по умолчанию является пустым массивом) переданные аргументы
      * $key, $operator и с помощью метода convertValue устанавливаем значение аргумента $val
      * Возвращаем $this
      * @throws \Anton\Exceptions\UnaccaptableOperatorException
      */
-    public function where($key = null, $operator = null, $val = null)
+    public function where($key = null, $operator = null, $val = null, $boolean = 'AND')
     {
-        //реализовать where так что бы можно было вызвать несколько раз для нескольких условий
-        if (isset($key) && isset($operator) /*&& isset($val)*/) {                   //->where('name', '<>', 'Ivan ')->where('id', '>=', 1)
-            $this->where[] = [$this->quote($key), Op::getOperator($operator, $val), $this->convertValue($val)];
+        if (isset($key) && isset($operator) /*&& isset($val)*/) {                                                 //->where('name', '<>', 'Ivan ')->where('id', '>=', 1)
+            $this->where[] = [
+                $this->quote($key),
+                Op::getOperator($operator, $val),
+                $this->convertValue($val),
+                (strtoupper($boolean) == 'OR' ? 'OR' : 'AND')
+            ];
         }
         return $this;
+    }
+
+    /**
+     * @param null $key
+     * @param null $operator
+     * @param null $val
+     * @return Builder
+     * @throws \Anton\Exceptions\UnaccaptableOperatorException
+     */
+    public function orWhere($key = null, $operator = null, $val = null)
+    {
+        return $this->where($key, $operator, $val, 'or');
+    }
+
+    /**
+     * @param $key
+     * @param $operator
+     * @param $val
+     * @return Builder
+     * @throws \Anton\Exceptions\UnaccaptableOperatorException
+     */
+    public function andWhere($key, $operator, $val)
+    {
+        return $this->where($key, $operator, $val, 'and');
     }
 
     /**
@@ -171,13 +200,12 @@ abstract class Builder
      */
     public function toSql()
     {
-//        var_dump($this->generateInsertClause());
-
-        return $this->generateSelectClause()
+        $sql = $this->generateSelectClause()
             . $this->generateFromClause()
             . $this->generateWhereClause()
             . $this->generateOrderByClause()
             . $this->generateLimitOffsetClause();
+        return trim($sql);
     }
 
 
@@ -208,15 +236,15 @@ abstract class Builder
         $columns = [];
         $values = [];
 
-        foreach ($this->values as  $value)
-        {
+        foreach ($this->values as $value) {
             $columns[] = $value[0];
             $values[] = $value[1];
         }
 
         $insertClause = ' ';
         if (!empty($this->insert)) {
-            $insertClause .= 'INSERT INTO ' . $this->insert . ' (' . implode(', ', $columns) . ') VALUES (' . implode(', ', $values) . ') ';
+            $insertClause .= 'INSERT INTO ' . $this->insert . ' (' . implode(', ',
+                    $columns) . ') VALUES (' . implode(', ', $values) . ') ';
         }
 
         return $insertClause;
@@ -265,14 +293,13 @@ abstract class Builder
      */
     protected function generateWhereClause()
     {
-        $whereClause = ' ';
+        $whereClause = ' WHERE ';
         if (!empty($this->where)) {
-            $whereClause .= 'WHERE ' . implode(
-                    ' AND ',
-                    array_map(function ($where) {
-                        return implode(' ', $where);
-                    }, $this->where)
-                );
+            foreach ($this->where as $index => $where) {
+                $boolean = array_pop($where);
+                $whereClause .= (0 == $index) ? '' : (' ' . $boolean . ' ');
+                $whereClause .= implode(' ', $where);
+            }
         }
         return $whereClause;
     }
