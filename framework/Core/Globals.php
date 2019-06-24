@@ -37,3 +37,11 @@ if (!function_exists('config')) {
         return $file;
     }
 }
+if (!function_exists('dd')) {
+    function dd(){
+        echo '<br>';
+        var_dump(...func_get_args());
+        echo '<br>';
+        die();
+    }
+}

@@ -5,7 +5,6 @@ namespace Anton\Database;
 
 use Anton\Exceptions\QueryBuilderException;
 use Anton\Database\BuilderOperator as Op;
-use Anton\Helpers\AuthHelper;
 
 /**
  * Class Builder
@@ -184,7 +183,7 @@ abstract class Builder
 
     /**
      * @return string
-     * Метод generateSelectClause() возвращает конкатенацию строк SELECT далее объединяем $this->select массив в строку.
+     * Метод generateSelectClause() возвращает конкатенацию строк SELECT, далее объединяем $this->select массив в строку.
      * Например, если в массиве одно значение получим "SELECT email", если в массиве два значения получи "SELECT email, id", если нет значений "SELECT *"
      */
     protected function generateSelectClause()
@@ -194,22 +193,48 @@ abstract class Builder
 
     }
 
+    /**
+     * @return string
+     * Метод generateInsertClause - формирует SQL запрос
+     * Создаем два пустых массива  $columns = массив для ключей $this->values(имена столбцов),  $values = массив для значений $this->values(значение)
+     * Записываем в переменные $columns, $values данные переданные пользователем.
+     * Даллее формурием sql запрос (регистрация нового пользователя, добавление в бд)
+     * возвращаем результат конкатенации
+     * Например: INSERT INTO users ( 'email', 'password', 'name' ) VALUES ('Ivan@mail.ru', 'Ivanov222', 'Ivan' )
+     */
     protected function generateInsertClause()
     {
 
+        $columns = [];
+        $values = [];
+
+        foreach ($this->values as  $value)
+        {
+            $columns[] = $value[0];
+            $values[] = $value[1];
+        }
+
         $insertClause = ' ';
         if (!empty($this->insert)) {
-            $insertClause .= 'INSERT INTO ' . $this->insert . ' (' . array_keys($this->values) . ') VALUES (' . array_values($this->values) . ') ';
+            $insertClause .= 'INSERT INTO ' . $this->insert . ' (' . implode(', ', $columns) . ') VALUES (' . implode(', ', $values) . ') ';
         }
+
         return $insertClause;
 
         // гененирует запрос Insert
         // возравщает нового пользователя
     }
 
+    /**
+     * @return array
+     * @throws \Exception
+     * Метод evalInsert - возвращает результат запроса к бд
+     *
+     */
     public function evalInsert()
     {
-
+        $sqlInsert = $this->generateInsertClause();
+        return $this->connect->execute($sqlInsert);
     }
 
 
@@ -234,7 +259,7 @@ abstract class Builder
     /**
      * @return string
      * Метод generateWhereClause() обрабатывает метод Where.
-     * Создаем переменную внутри метода $whereClause = ' ' которая содержит пробоел
+     * Создаем переменную внутри метода $whereClause = ' ' которая содержит пробел
      * Проверяем если содержимое свойство класса $this->$where не пустое, тогда делаем конкатенацаю срок "WHERE "
      *
      */

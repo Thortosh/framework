@@ -10,6 +10,9 @@ class Connect
 {
     protected $pdo = null;
 
+    /**
+     * Connect constructor.
+     */
     public function __construct()
     {
         $config = config('db.connect');
@@ -26,6 +29,12 @@ class Connect
      * @param $sql
      * @return array
      * @throws \Exception
+     * Метод execute -
+     * $result пустой массив
+     * $this->pdo->query - Выполняет SQL-запрос и возвращает результирующий набор в виде объекта PDOStatement
+     * Если запрос не выполнен, возвращаем ошибку
+     * Проходимся по массиву переданного запроса
+     *
      */
     public function execute($sql)
     {
@@ -34,6 +43,7 @@ class Connect
 
         if ($data === false) {
             throw new ConnectException($this->getSqlError());
+
         }
 
         foreach ($data as $item) {
@@ -44,6 +54,9 @@ class Connect
         return $result;
     }
 
+    /**
+     * @return string
+     */
     protected function getSqlError()
     {
         $error = $this->pdo->errorInfo();

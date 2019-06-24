@@ -11,9 +11,7 @@ namespace Anton\Database;
 // TODO: уже в момент получения builder, у него уже должен быть прописан FROM, который мы берем из экземпляра модели
 // TODO: почистить конструктор
 
-use \Anton\Database\Builder;
 use Anton\Exceptions\BuilderGetterException;
-use Anton\Helpers\AuthHelper;
 
 /**
  * Class Model
@@ -76,16 +74,17 @@ class Model implements \Serializable
 
     /**
      * @param array $values
+     * @return array
      * @throws BuilderGetterException
+     * @throws \Anton\Exceptions\UnaccaptableOperatorException
+     * В метод create - получить пользователя по email, обернуть в модель
      */
     public function create($values = [])
     {
         $builder = self::query();
-        $builder->insert();
-        $builder->values($values);
-        return $builder->evalInsert();
-        // закинуть содержимое generateInsertClause
+        $builder->insert()->values($values)->evalInsert();
 
+        return $builder->where('email', '=', $values['email'] ?? '')->first();
     }
 
 

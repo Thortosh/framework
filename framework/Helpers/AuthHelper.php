@@ -3,7 +3,6 @@
 namespace Anton\Helpers;
 
 use Anton\Core\Request;
-use Anton\Database\Builder;
 use App\Models\UserModel;
 
 class AuthHelper
@@ -74,14 +73,12 @@ class AuthHelper
      */
     public static function user($field = null, $default = '')
     {
-
-        //var_dump($_SESSION['user']);
         $user = unserialize($_SESSION['user']);
 
         if (!$field) {
             return $user ?? $default;
         }
-        //var_dump($user->get($field) ?? $default;);
+
         return $user->get($field) ?? $default;          //имя user либо пустая строка
     }
 
@@ -89,6 +86,8 @@ class AuthHelper
      * @return bool
      * Получаем получаем данные который передал пользователь(проверяем заполнил ли пользователь все поля)
      *
+     * @throws \Anton\Exceptions\BuilderGetterException
+     * @throws \Anton\Exceptions\UnaccaptableOperatorException
      */
     public static function register()
     {
@@ -102,19 +101,13 @@ class AuthHelper
             'name' => Request::get('name')
         ]);
 
-//        return Request::all();
-//        $userdata = Request::all();                                         //INSERT INTO users SET email = 'ignat@mail.ru', name = 'Ignat', password = 'qwer';
-//        $email = $userdata['email'];
-//        $name = $userdata['name'];
-//        $password = $userdata['password'];
-//        return 'SET' . ' email = ' . $email . ', name = ' . $name . ', password = ' . $password;
-
         if (!$user) {
-            $errors['null_user'] = 'Shit happens';
+            $errors['null_user'] = 'Email already exists';
             return HttpHelper::redirect('/account/register', $errors);
         }
 
         $_SESSION['user'] = serialize($user);
+
         return HttpHelper::redirect('/account/me');
     }
 

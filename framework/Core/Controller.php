@@ -33,7 +33,6 @@ class Controller
         if (count($errors)) {
             $params['errors'] = $errors;
         }
-
         ob_start();
         extract($params);
         require $templateName;
